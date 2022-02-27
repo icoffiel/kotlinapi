@@ -5,14 +5,15 @@ import com.icoffiel.kotlinapi.platform.dto.PlatformAddRequest
 import com.icoffiel.kotlinapi.platform.dto.PlatformApiResponse
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.notNullValue
+import org.hamcrest.Matchers.*
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 
@@ -21,7 +22,8 @@ import org.springframework.test.web.servlet.post
 class PlatformControllerTest(
     @Autowired private val mockMvc: MockMvc,
 ) {
-    @MockkBean lateinit var platformService: PlatformService // TODO - Can we get rid of the lateinit var?
+    @MockkBean
+    lateinit var platformService: PlatformService // TODO - Can we get rid of the lateinit var?
 
     private val mapper = jacksonObjectMapper()
 
@@ -35,6 +37,29 @@ class PlatformControllerTest(
                 status { is2xxSuccessful() }
                 content { contentType(MediaType.APPLICATION_JSON) }
                 content { json("[]") }
+            }
+    }
+
+    @Test
+    fun `PlatformController returns a platform successfully`() {
+        every { platformService.findById(any()) } returns PlatformApiResponse(
+            id = 1,
+            name = "Xbox"
+        )
+
+        @Language("JSON") val expectedJson = """
+            {
+              "id": 1,
+              "name": "Xbox"
+            }
+        """.trimIndent()
+
+        mockMvc
+            .get("/platforms/{id}", 1)
+            .andExpect {
+                status { is2xxSuccessful() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { json(expectedJson) }
             }
     }
 
@@ -54,6 +79,16 @@ class PlatformControllerTest(
                 content { contentType(MediaType.APPLICATION_JSON) }
                 content { jsonPath("$.id", notNullValue()) }
                 content { jsonPath("$.name", equalTo("Xbox")) }
+            }
+    }
+
+    @Test
+    fun `PlatformController can delete a platform successfully`() {
+        every { platformService.delete(any()) } answers { nothing }
+        mockMvc
+            .delete("/platforms/{id}", 1)
+            .andExpect {
+                status { is2xxSuccessful() }
             }
     }
 }
