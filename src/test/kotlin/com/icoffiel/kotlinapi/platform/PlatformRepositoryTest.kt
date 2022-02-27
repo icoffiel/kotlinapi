@@ -8,6 +8,7 @@ import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
+import org.springframework.data.repository.findByIdOrNull
 
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -35,7 +36,20 @@ class PlatformRepositoryTest(
             .forEach { expected ->
                 assertThat(platforms, hasItem<PlatformEntity>(hasProperty("name", `is`(expected.name))))
             }
+    }
 
+    @Test
+    fun `PlatformRepository find returns a PlatformEntity`() {
+        val savedEntity = entityManager.persist(
+            PlatformEntity(
+                name = "Xbox"
+            )
+        )
+
+        val platform = platformRepository.findByIdOrNull(savedEntity.id)
+
+        assertThat(platform?.id, equalTo(savedEntity.id))
+        assertThat(platform?.name, equalTo(savedEntity.name))
     }
 
     @Test
@@ -46,5 +60,18 @@ class PlatformRepositoryTest(
 
         assertThat(savedPlatformEntity.id, notNullValue())
         assertThat(savedPlatformEntity.name, equalTo("Xbox"))
+    }
+
+    @Test
+    fun `PlatformRepository delete removes the saved platform`() {
+        val savedPlatform = entityManager.persist(
+            PlatformEntity(
+                name = "Xbox"
+            )
+        )
+        assertThat(entityManager.find(PlatformEntity::class.java, savedPlatform.id), notNullValue())
+
+        platformRepository.deleteById(savedPlatform.id!!)
+        assertThat(entityManager.find(PlatformEntity::class.java, savedPlatform.id), nullValue())
     }
 }
