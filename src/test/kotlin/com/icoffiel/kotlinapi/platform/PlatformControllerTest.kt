@@ -1,6 +1,7 @@
 package com.icoffiel.kotlinapi.platform
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.icoffiel.kotlinapi.common.exception.NoEntityFoundException
 import com.icoffiel.kotlinapi.platform.dto.PlatformAddRequest
 import com.icoffiel.kotlinapi.platform.dto.PlatformApiResponse
 import com.ninjasquad.springmockk.MockkBean
@@ -60,6 +61,17 @@ class PlatformControllerTest(
                 status { is2xxSuccessful() }
                 content { contentType(MediaType.APPLICATION_JSON) }
                 content { json(expectedJson) }
+            }
+    }
+
+    @Test
+    fun `PlatformController returns a 404 when no item is found`() {
+        every { platformService.findById(any()) } throws NoEntityFoundException(1, "Platform")
+
+        mockMvc
+            .get("/platforms/{id}", 1)
+            .andExpect {
+                status { isNotFound() }
             }
     }
 
