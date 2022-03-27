@@ -1,5 +1,6 @@
 package com.icoffiel.kotlinapi.platform.domain
 
+import java.time.LocalDate
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -7,6 +8,7 @@ import javax.persistence.Id
 @Entity
 class PlatformEntity(
     var name: String,
+    var releaseDate: LocalDate,
 
     @Id
     @GeneratedValue

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
+import java.time.LocalDate
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PlatformServiceTest {
@@ -22,11 +23,11 @@ class PlatformServiceTest {
     @Test
     fun `when findAllPlatforms is called return the expected platforms`() {
         val expectedPlatforms = listOf(
-            PlatformApiResponse(id = 1, name = "Xbox")
+            PlatformApiResponse(id = 1, name = "Xbox", releaseDate = LocalDate.parse("2020-01-01")),
         )
 
         every { platformRepository.findAll() } returns listOf(
-            PlatformEntity(id = 1, name = "Xbox")
+            PlatformEntity(id = 1, name = "Xbox", releaseDate = LocalDate.parse("2020-01-01"))
         )
 
         val platforms = platformService.findAllPlatforms()
@@ -37,9 +38,11 @@ class PlatformServiceTest {
 
     @Test
     fun `PlatformService findById returns the expected PlatformAPIResponse`() {
+        val releaseDate = LocalDate.parse("2020-01-01")
         val platformEntity = PlatformEntity(
             id = 1,
             name = "Xbox",
+            releaseDate = releaseDate
         )
 
         every { platformRepository.findByIdOrNull(any()) } returns platformEntity
@@ -48,6 +51,7 @@ class PlatformServiceTest {
 
         assertThat(platformAPIResponse.id, equalTo(platformEntity.id))
         assertThat(platformAPIResponse.name, equalTo(platformEntity.name))
+        assertThat(platformAPIResponse.releaseDate, equalTo(releaseDate))
     }
 
     @Test
@@ -63,14 +67,20 @@ class PlatformServiceTest {
 
     @Test
     fun `Platform service save will return the expected PlatformAPIResponse`() {
-        val platformAddRequest = PlatformAddRequest(name = "Xbox")
+        val releaseDate = LocalDate.parse("2020-01-01")
+        val platformAddRequest = PlatformAddRequest(name = "Xbox", releaseDate = releaseDate)
 
-        every { platformRepository.save(any()) } returns PlatformEntity(id = 1, name = platformAddRequest.name)
+        every { platformRepository.save(any()) } returns PlatformEntity(
+            id = 1,
+            name = platformAddRequest.name,
+            releaseDate = releaseDate
+        )
 
         val returnedPlatform = platformService.save(platformAddRequest)
 
         assertThat(returnedPlatform.id, notNullValue())
         assertThat(returnedPlatform.name, equalTo(platformAddRequest.name))
+        assertThat(returnedPlatform.releaseDate, equalTo(releaseDate))
     }
 
     @Test

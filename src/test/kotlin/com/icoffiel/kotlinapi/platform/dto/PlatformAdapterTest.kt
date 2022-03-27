@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import java.security.InvalidParameterException
+import java.time.LocalDate
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PlatformAdapterTest {
@@ -15,7 +16,8 @@ class PlatformAdapterTest {
 
         val platformEntity = PlatformEntity(
             id = 100L,
-            name = "Name"
+            name = "Name",
+            releaseDate = LocalDate.parse("2020-01-01"),
         )
 
         val result = platformEntity.toPlatformApiResponse()
@@ -25,7 +27,8 @@ class PlatformAdapterTest {
             equalTo(
                 PlatformApiResponse(
                     id = 100L,
-                    name = "Name"
+                    name = "Name",
+                    releaseDate = LocalDate.parse("2020-01-01")
                 )
             )
         )
@@ -34,7 +37,8 @@ class PlatformAdapterTest {
     @Test
     fun `PlatformAdapter cannot convert from a PlatFormEntity to a PlatformApiResponse when there is a null id`() {
         val platformEntity = PlatformEntity(
-            name = "Name"
+            name = "Name",
+            releaseDate = LocalDate.parse("2020-01-01"),
         )
 
         assertThrows<InvalidParameterException> {
@@ -44,7 +48,8 @@ class PlatformAdapterTest {
 
     @Test
     fun `PlatformAdapter can convert from a PlatformAddRequest to a PlatformEntity`() {
-        val platformAddRequest = PlatformAddRequest(name = "Xbox")
+        val releaseDate = LocalDate.parse("2020-01-01")
+        val platformAddRequest = PlatformAddRequest(name = "Xbox", releaseDate = releaseDate)
 
         val result = platformAddRequest.toPlatformEntity()
 
@@ -52,7 +57,8 @@ class PlatformAdapterTest {
             result,
             equalTo(
                 PlatformEntity(
-                    name = "Xbox"
+                    name = "Xbox",
+                    releaseDate = releaseDate
                 )
             )
         )

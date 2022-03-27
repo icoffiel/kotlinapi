@@ -6,8 +6,11 @@ import java.security.InvalidParameterException
 fun PlatformEntity.toPlatformApiResponse(): PlatformApiResponse = PlatformApiResponse(
     id = this.id ?: throw InvalidParameterException("Unable to map null id"),
     name = this.name,
+    releaseDate = this.releaseDate,
+
 )
 
 fun PlatformAddRequest.toPlatformEntity(): PlatformEntity = PlatformEntity(
-    name = this.name
+    name = this.name,
+    releaseDate = this.releaseDate,
 )
